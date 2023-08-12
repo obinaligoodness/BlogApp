@@ -27,16 +27,16 @@ public class CommentServiceImpl implements CommentService{
         Comment comment = new Comment();
         User foundUser = userRepository.findUserByEmail(commentRequest.getUserEmail());
         List<Post> userPosts = postRepository.findPostByUser(foundUser);
-        comment.setContent(commentRequest.getContent());
         User sender = userRepository.findUserByEmail(commentRequest.getSenderEmail());
+        Post foundPost = postRepository.findPostByTitle(commentRequest.getTitle());
+
+        comment.setPost(foundPost);
         comment.setAuthor(sender.getUserName());
+        comment.setContent(commentRequest.getContent());
+        foundPost.getComments().add(comment);
+
         commentRepository.save(comment);
-        for (Post post:userPosts){
-            if (post.getTitle().equals(commentRequest.getTitle())){
-                post.getComments().add(comment);
-                postRepository.save(post);
-            }
-        }
+
         CommentResponse commentResponse = new CommentResponse();
         commentResponse.setMessage("successful");
         return commentResponse;
